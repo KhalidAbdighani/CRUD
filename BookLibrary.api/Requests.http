@@ -1,0 +1,26 @@
+GET http://localhost:5062/books
+###
+
+POST http://localhost:5062/books
+content-type: application/json
+
+{
+    "Book_name":"Book4",
+    "Auth_name":"Auth4"
+}
+
+###
+
+PUT http://localhost:5062/books/5
+content-type: application/json
+
+{
+    
+    "Book_name":"Book5",
+    "Auth_name":"Auth5"
+}
+
+
+
+###
+DELETE  http://localhost:5062/books/5
