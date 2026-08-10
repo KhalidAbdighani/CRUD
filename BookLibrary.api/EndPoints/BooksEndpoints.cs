@@ -52,7 +52,7 @@ public static class BooksEndpoints
                 var Aname =books[i].Auth_name;
                 
                 if(UpdateBook.Auth_name == Aname && UpdateBook.Book_name == Bname )return Results.BadRequest("No changes have been made");
-                if(string.IsNullOrEmpty(UpdateBook.Auth_name)|| string.IsNullOrEmpty(UpdateBook.Book_name))return Results.BadRequest("new Book and Authors names are required");
+                // if(string.IsNullOrEmpty(UpdateBook.Auth_name)|| string.IsNullOrEmpty(UpdateBook.Book_name))return Results.BadRequest("new Book and Authors names are required");
                 books[i]= new LibraryDTO (
                 id,
                 UpdateBook.Book_name,
