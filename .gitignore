@@ -1,4 +1,10 @@
-/BookLibrary.api/bin
-/BookLibrary.api/obj
+
+
 /BookLibrary.api/Properties
 /BookLibrary.api/appsettings.Development.json
+**/bin/
+**/obj/
+.vs/
+.vscode/
+*.user
+
