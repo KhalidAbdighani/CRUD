@@ -32,44 +32,74 @@ public static class BooksEndpoints
 
 
                 //POST BOOK
-                app.MapPost("/books", (PostBook book) =>
+                app.MapPost("/books", async (PostBook book , AppDbContext db) =>
                 {
                     if(string.IsNullOrEmpty(book.Book_name) || string.IsNullOrEmpty(book.Auth_name))return Results.BadRequest("Book and Auth names are required!");
 
                     LibraryDTO new_book= new(books.Count+1, book.Book_name, book.Auth_name);
                     books.Add(new_book);
+
+                    var newbook = new BookColums
+                    {
+                        Book_name_db= book.Book_name,
+                        Auth_name_db=book.Auth_name
+                    };
+                    db.BookStore.Add(newbook);
+                    await db.SaveChangesAsync();
                     return TypedResults.CreatedAtRoute(new_book,  GetBookEndpointName, new {id = new_book.id});
                 });
 
-
+                 
                 //UPDATE BOOK
-                app.MapPut("/books/{id}", (int id, PutBook UpdateBook) =>
+                app.MapPut("/books/{id}", async (int id, PutBook UpdateBook, AppDbContext db) =>
                 {
                 var i = books.FindIndex(book=>book.id==id);
+                var result_from_db = db.BookStore.FirstOrDefault(target=>target.id==id);
+                
+                
 
-                if (i < 0)return  Results.NotFound("Book wasnt found");
+                if ( i< 0 && result_from_db == null)return  Results.NotFound("Book wasnt found");
                 var Bname = books[i].Book_name;
                 var Aname =books[i].Auth_name;
+
                 
-                if(UpdateBook.Auth_name == Aname && UpdateBook.Book_name == Bname )return Results.BadRequest("No changes have been made");
+                if(UpdateBook.Auth_name == Aname && UpdateBook.Book_name == Bname && UpdateBook.Auth_name ==result_from_db.Auth_name_db && UpdateBook.Book_name == result_from_db.Book_name_db  )return Results.BadRequest($"No changes were made to the book with ID {id}");
                 // if(string.IsNullOrEmpty(UpdateBook.Auth_name)|| string.IsNullOrEmpty(UpdateBook.Book_name))return Results.BadRequest("new Book and Authors names are required");
+                
                 books[i]= new LibraryDTO (
                 id,
                 UpdateBook.Book_name,
                 UpdateBook.Auth_name
                 );
                 
-                return Results.Ok(books[i]);
+                result_from_db?.Auth_name_db=UpdateBook.Auth_name;
+                result_from_db?.Book_name_db=UpdateBook.Book_name;
+                
+                
+                
+                await db.SaveChangesAsync();
+                
+
+
+                
+                return Results.Ok(new
+                {
+                    msg = $"Book with ID {id} was successfully Updated",
+                    data=books[i]
+                });
                 });
 
 
                 //DELETE BOOK
-                app.MapDelete("/books/{id}",(int id)=> {
+                app.MapDelete("/books/{id}",async (int id, AppDbContext db)=> {
+                var result_from_db = await db.BookStore.FindAsync(id);
 
                 var i = books.Find(book=>book.id==id);
-                if(i is null)return Results.NotFound("Book was not found");
+                if(i is null && result_from_db is null)return Results.NotFound($"No book found with ID {id}");
                 books.Remove(i);
-                return Results.Text("Deleted successfully");
+                db.BookStore.Remove(result_from_db);
+                await db.SaveChangesAsync();
+                return Results.Text($"Book with ID {id} was successfully deleted");
                 });
 
 
