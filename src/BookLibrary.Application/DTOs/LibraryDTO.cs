@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+namespace BookLibrary.Application.DTOs;
 
-namespace Lib_app;
 
-public record  PostBook(
+
+public record  LibraryDTO(
+    int id,
     [Required] [StringLength(20)] string Book_name,
     [Required] [StringLength(20)] string Auth_name
 );

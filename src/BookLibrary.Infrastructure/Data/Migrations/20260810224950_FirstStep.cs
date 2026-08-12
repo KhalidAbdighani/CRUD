@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Lib_app.Migrations
+namespace BookLibrary.Infrastructure.Data.Migrations
 {
     /// <inheritdoc />
     public partial class FirstStep : Migration

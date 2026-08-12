@@ -1,4 +1,4 @@
-using Lib_app;
+using BookLibrary.api.EndPoints;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 //imports >> dependences

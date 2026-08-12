@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>Lib_app</RootNamespace>
+    <RootNamespace>BookLibrary.api</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,7 +12,12 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\BookLibrary.Infrastructure\BookLibrary.Infrastructure.csproj" />
+    <ProjectReference Include="..\src\BookLibrary.Application\BookLibrary.Application.csproj" />
   </ItemGroup>
 
 </Project>

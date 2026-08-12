@@ -1,6 +1,6 @@
 using System;
 
-namespace Lib_app;
+namespace BookLibrary.Domain.Entities;
 
 public class BookColums
 {   

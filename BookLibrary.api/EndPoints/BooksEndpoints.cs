@@ -1,7 +1,8 @@
 using System;
+using BookLibrary.Application.DTOs;
+using BookLibrary.Domain.Entities;
 
-namespace Lib_app;
-
+namespace BookLibrary.api.EndPoints;
 public static class BooksEndpoints
 {
         const string GetBookEndpointName = "GetBook";
