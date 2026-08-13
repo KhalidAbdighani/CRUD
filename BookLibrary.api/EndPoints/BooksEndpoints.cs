@@ -1,15 +1,18 @@
 using System;
 using BookLibrary.Application.DTOs;
 using BookLibrary.Domain.Entities;
+using BookLibrary.Infrastructure.Data;
+
+
+
+using Microsoft.EntityFrameworkCore;
 
 namespace BookLibrary.api.EndPoints;
 public static class BooksEndpoints
 {
         const string GetBookEndpointName = "GetBook";
         private static readonly List<LibraryDTO> books= [
-        new (1,"Book1","Author1"),
-        new (2,"Book2","Author2"),
-        new (3,"Book3","Author3")
+        
     ];
 
 
@@ -24,30 +27,47 @@ public static class BooksEndpoints
 
 
                 //GET BOOK WITH ID
-                app.MapGet("/books/{id}", (int id) =>
-                {
-                var book = books.Find(book=>book.id==id);
-                return book is null? Results.NotFound("Book not found") : Results.Ok(book);
-                } )
-                .WithName(GetBookEndpointName);
+                // app.MapGet("/books/{id}", (int id) =>
+                // {
+                // var book = books.Find(book=>book.id==id);
+                // return book is null? Results.NotFound("Book not found") : Results.Ok(book);
+                // } )
+                // .WithName(GetBookEndpointName);
 
 
                 //POST BOOK
                 app.MapPost("/books", async (PostBook book , AppDbContext db) =>
                 {
-                    if(string.IsNullOrEmpty(book.Book_name) || string.IsNullOrEmpty(book.Auth_name))return Results.BadRequest("Book and Auth names are required!");
+                    if(string.IsNullOrEmpty(book.Book_name) ||
+                     string.IsNullOrEmpty(book.Auth_name)||
+                     book.CategoryId <0)
+                     
+                     return Results.BadRequest("Book, Auth names and category number are required!");
 
-                    LibraryDTO new_book= new(books.Count+1, book.Book_name, book.Auth_name);
-                    books.Add(new_book);
-
-                    var newbook = new BookColums
+                    var categoryExists = await db.Categories.AnyAsync(c => c.id == book.CategoryId);
+                    if (!categoryExists)
                     {
+                    return Results.BadRequest($"category with id {book.CategoryId} does not Exists");
+    }
+                    
+                    
+                    var newbook = new BookColums
+                    {   
+
                         Book_name_db= book.Book_name,
-                        Auth_name_db=book.Auth_name
+                        Auth_name_db=book.Auth_name,
+                        CategoryId=book.CategoryId
                     };
+                    
                     db.BookStore.Add(newbook);
                     await db.SaveChangesAsync();
-                    return TypedResults.CreatedAtRoute(new_book,  GetBookEndpointName, new {id = new_book.id});
+                    return Results.Ok("done");
+                });
+
+                app.MapPost("/category", async( AppDbContext db) =>
+                {
+                    var categories = await db.Categories.Select( c => new{c.id,c.name}).ToListAsync();
+                    await db.SaveChangesAsync();
                 });
 
                  
@@ -55,23 +75,19 @@ public static class BooksEndpoints
                 app.MapPut("/books/{id}", async (int id, PutBook UpdateBook, AppDbContext db) =>
                 {
                 var i = books.FindIndex(book=>book.id==id);
-                var result_from_db = db.BookStore.FirstOrDefault(target=>target.id==id);
+                var result_from_db = await db.BookStore.FirstOrDefaultAsync(target=>target.id==id);
                 
                 
 
-                if ( i< 0 && result_from_db == null)return  Results.NotFound("Book wasnt found");
-                var Bname = books[i].Book_name;
-                var Aname =books[i].Auth_name;
+                
+                if ( result_from_db == null)return  Results.NotFound($"Book with id {id} wasnt found");
+                
+                
 
                 
-                if(UpdateBook.Auth_name == Aname && UpdateBook.Book_name == Bname && UpdateBook.Auth_name ==result_from_db.Auth_name_db && UpdateBook.Book_name == result_from_db.Book_name_db  )return Results.BadRequest($"No changes were made to the book with ID {id}");
-                // if(string.IsNullOrEmpty(UpdateBook.Auth_name)|| string.IsNullOrEmpty(UpdateBook.Book_name))return Results.BadRequest("new Book and Authors names are required");
+                if(UpdateBook.Auth_name ==result_from_db.Auth_name_db && UpdateBook.Book_name == result_from_db.Book_name_db  )return Results.BadRequest($"No changes were made to the book with ID {id}");
                 
-                books[i]= new LibraryDTO (
-                id,
-                UpdateBook.Book_name,
-                UpdateBook.Auth_name
-                );
+                
                 
                 result_from_db?.Auth_name_db=UpdateBook.Auth_name;
                 result_from_db?.Book_name_db=UpdateBook.Book_name;
@@ -86,7 +102,7 @@ public static class BooksEndpoints
                 return Results.Ok(new
                 {
                     msg = $"Book with ID {id} was successfully Updated",
-                    data=books[i]
+                    data=result_from_db
                 });
                 });
 
@@ -96,8 +112,9 @@ public static class BooksEndpoints
                 var result_from_db = await db.BookStore.FindAsync(id);
 
                 var i = books.Find(book=>book.id==id);
-                if(i is null && result_from_db is null)return Results.NotFound($"No book found with ID {id}");
-                books.Remove(i);
+                if( result_from_db is null)return Results.NotFound($"No book found with ID {id}");
+                
+                
                 db.BookStore.Remove(result_from_db);
                 await db.SaveChangesAsync();
                 return Results.Text($"Book with ID {id} was successfully deleted");

@@ -1,5 +1,8 @@
 using BookLibrary.api.EndPoints;
 using Microsoft.EntityFrameworkCore;
+using BookLibrary.Infrastructure.Data;
+using BookLibrary.Domain.Entities;
+
 var builder = WebApplication.CreateBuilder(args);
 //imports >> dependences
 var Book_DBB = builder.Configuration.GetConnectionString("Book_DB");
@@ -13,5 +16,6 @@ var app = builder.Build();
 //routs and uses 
 
 app.MapEndpoints();
+await app.Services.CategoryDB();
 
 app.Run();

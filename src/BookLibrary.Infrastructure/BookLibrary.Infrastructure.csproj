@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BookLibrary.Application\BookLibrary.Application.csproj" />
     <ProjectReference Include="..\BookLibrary.Domain\BookLibrary.Domain.csproj" />
+    
   </ItemGroup>
 
   <ItemGroup>

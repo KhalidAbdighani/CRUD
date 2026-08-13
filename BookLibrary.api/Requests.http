@@ -5,22 +5,23 @@ POST http://localhost:5062/books
 content-type: application/json
 
 {
-    "Book_name":"Book4",
-    "Auth_name":"Auth4"
+    "Book_name":"action",
+    "Auth_name":"action",
+    "CategoryId": 87
 }
 
 ###
 
-PUT http://localhost:5062/books/1
+PUT http://localhost:5062/books/14
 content-type: application/json
 
 {
     
-    "Book_name":"Book1",
-    "Auth_name":"Auth1"
+    "Book_name":"Book14",
+    "Auth_name":"Auth14"
 }
 
 
 
 ###
-DELETE  http://localhost:5062/books/4
+DELETE  http://localhost:5062/books/13
